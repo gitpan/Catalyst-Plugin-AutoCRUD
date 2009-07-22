@@ -209,8 +209,12 @@ sub helloworld : Chained('base') Args(0) {
 sub end : ActionClass('RenderView') {
     my ($self, $c) = @_;
     my $frontend = $c->stash->{site_conf}->{frontend} || 'full-fat';
-    $c->stash->{additional_template_paths} =
-        ["$directory../templates/$frontend"];
+
+    my $tt_path = $c->config->{'Plugin::AutoCRUD'}->{tt_path};
+    $tt_path = (defined $tt_path ? (ref $tt_path eq '' ? [$tt_path] : $tt_path ) : [] );
+
+    push @$tt_path, "$directory../templates/$frontend";
+    $c->stash->{additional_template_paths} = $tt_path;
 }
 
 1;

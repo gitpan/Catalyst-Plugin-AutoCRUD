@@ -64,7 +64,7 @@ sub acl : Private {
     my $table = $c->stash->{table};
 
     my $acl_for = {
-        # create   => 'create_allowed',
+        create   => 'create_allowed',
         update   => 'update_allowed',
         'delete' => 'delete_allowed',
     };
@@ -94,6 +94,12 @@ sub dumpmeta : Chained('base') Args(0) {
     my ($self, $c) = @_;
     $c->stash->{json_data} = $c->stash->{lf};
     return $self;
+}
+
+# allows us to pseudo-acl the create call separately from update
+sub create : Chained('base') Args(0) {
+    my ($self, $c) = @_; 
+    $c->forward('update');
 }
 
 sub list : Chained('base') Args(0) {
