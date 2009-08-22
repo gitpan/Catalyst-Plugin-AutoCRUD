@@ -2,7 +2,7 @@ NAME
     Catalyst::Plugin::AutoCRUD - Instant AJAX web front-end for DBIx::Class
 
 VERSION
-    This document refers to version 0.45 of Catalyst::Plugin::AutoCRUD
+    This document refers to version 0.46 of Catalyst::Plugin::AutoCRUD
 
 WARNING
     This is an *ALPHA RELEASE*. I'd really appreciate any bug reports; you
@@ -74,8 +74,8 @@ USAGE
 
      package AutoCRUDUser;
      use Catalyst qw(AutoCRUD);
- 
-     __PACKAGE__->setup;
+     
+ __PACKAGE__->setup;
      1;
 
     Adding "Catalyst::Plugin::AutoCRUD" as a plugin to your Catalyst
@@ -99,8 +99,8 @@ USAGE
 
      package AutoCRUDUser;
      use Catalyst qw(ConfigLoader AutoCRUD);
- 
-     __PACKAGE__->setup;
+     
+ __PACKAGE__->setup;
      1;
 
     For the configuration, you need to tell AutoCRUD which package contains
@@ -158,8 +158,8 @@ USAGE
 
      package AutoCRUDUser;
      use Catalyst qw(ConfigLoader AutoCRUD);
- 
-     __PACKAGE__->setup;
+     
+ __PACKAGE__->setup;
      1;
 
      <Model::AutoCRUD::DBIC>
@@ -220,6 +220,20 @@ TIPS AND TRICKS
     add_columns(). This will let the plugin know you don't need to supply a
     value for new or updated records. The interface will look much better as
     a result.
+
+  Column names with spaces
+    The plugin will handle most tricky names, but you should remember to
+    pass some required extra quoting hints to DBIx::Class when it makes a
+    connection to your database:
+
+     # most databases:
+     { quote_char => q{`}, name_sep => q{.} }
+      
+ # SQL Server:
+     { quote_char => [qw/[ ]/], name_sep => q{.} }
+
+    For more information see the DBIx::Class::Storage::DBI manual page or
+    ask on the DBIx::Class mail list.
 
   Database IO filters
     Buried within one of the modules in this application are some filters
@@ -505,8 +519,8 @@ SITES CONFIGURATION
 
      from this:
      .../autocrud/myschema/thesource    # (i.e. site == default)
-  
-     to this:
+      
+ to this:
      .../autocrud/site/mysite/schema/myschema/source/thesource
 
     So let's say you've created a dumbed down site for your users which is

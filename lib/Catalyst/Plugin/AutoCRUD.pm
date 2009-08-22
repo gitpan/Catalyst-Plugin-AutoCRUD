@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use MRO::Compat;
 use Devel::InnerPackage qw/list_packages/;
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 $VERSION = eval $VERSION; # numify for warning-free dev releases
 our $this_package = __PACKAGE__; # so it can be used in hash keys
 
@@ -105,7 +105,7 @@ Catalyst::Plugin::AutoCRUD - Instant AJAX web front-end for DBIx::Class
 
 =head1 VERSION
 
-This document refers to version 0.45 of Catalyst::Plugin::AutoCRUD
+This document refers to version 0.46 of Catalyst::Plugin::AutoCRUD
 
 =head1 WARNING
 
@@ -332,6 +332,21 @@ For those columns where your database uses an auto-incremented value, add the
 C<< is_auto_increment => 1, >> option to the relevant hash in add_columns().
 This will let the plugin know you don't need to supply a value for new or
 updated records. The interface will look much better as a result.
+
+=head2 Column names with spaces
+
+The plugin will handle most tricky names, but you should remember to pass some
+required extra quoting hints to DBIx::Class when it makes a connection to your
+database:
+
+ # most databases:
+ { quote_char => q{`}, name_sep => q{.} }
+  
+ # SQL Server:
+ { quote_char => [qw/[ ]/], name_sep => q{.} }
+
+For more information see the L<DBIx::Class::Storage::DBI> manual page or ask
+on the DBIx::Class mail list.
 
 =head2 Database IO filters
 
