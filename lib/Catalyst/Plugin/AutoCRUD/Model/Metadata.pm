@@ -57,6 +57,7 @@ sub process {
         and exists $self->_schema_cache->{$c->stash->{db}}->{$c->stash->{table}}) {
 
         # we have a cache!
+        $c->stash->{dbtitle} = _2title( $c->stash->{db} );
         $c->stash->{lf} = $self->_schema_cache->{$c->stash->{db}}->{$c->stash->{table}};
         $c->log->debug(sprintf 'autocrud: retrieved cached metadata for db: [%s] table: [%s]',
             $c->stash->{db}, $c->stash->{table}) if $c->debug;
@@ -170,11 +171,18 @@ sub _build_table_info {
         if ($type eq 'multi') {
             $mfks{$r} = $source->relationship_info($r);
         }
-        elsif ($type eq 'single') {
+        # the join_type is a bit heuristic but it's difficult to differentiate
+        # the belongs_to with a custom accessor name, from the has_one/might_have
+        elsif ($type eq 'single'
+                and exists $source->relationship_info($r)->{attrs}->{join_type}) {
             $sfks{$r} = $source->relationship_info($r);
         }
         else { # filter
             $fks{$r} = $source->relationship_info($r);
+            # if this is a belongs_to with custom accessor, hide the orig col
+            (my $src_col = (values %{$source->relationship_info($r)->{cond}})[0]) =~ s/^self\.//;
+            @cols = grep {$_ !~ m/^$src_col$/} @cols;
+            $ti->{cols}->{$r}->{masked_col} = $src_col;
         }
     }
 
@@ -208,6 +216,31 @@ sub _build_table_info {
         next unless defined $info;
 
         $ti->{cols}->{$col} = {
+            heading      => _2title($col),
+            editable     => ($info->{is_auto_increment} ? 0 : 1),
+            required     => ((exists $info->{is_nullable}
+                                 and $info->{is_nullable} == 0) ? 1 : 0),
+        };
+
+        $ti->{cols}->{$col}->{default_value} = $info->{default_value}
+            if ($info->{default_value} and $ti->{cols}->{$col}->{editable});
+
+        $ti->{cols}->{$col}->{extjs_xtype} = $xtype_for{ lc($info->{data_type}) }
+            if (exists $info->{data_type} and exists $xtype_for{ lc($info->{data_type}) });
+
+        $ti->{cols}->{$col}->{extjs_xtype} = 'textfield'
+            if !exists $ti->{cols}->{$col}->{extjs_xtype}
+                and defined $info->{size} and $info->{size} <= 40;
+    }
+
+    # and FIXME do the same for the FKs which are masking hidden cols
+    foreach my $col (keys %fks) {
+        next unless exists $ti->{cols}->{$col}->{masked_col};
+        my $info = $source->column_info($ti->{cols}->{$col}->{masked_col});
+        next unless defined $info;
+
+        $ti->{cols}->{$col} = {
+            %{$ti->{cols}->{$col}},
             heading      => _2title($col),
             editable     => ($info->{is_auto_increment} ? 0 : 1),
             required     => ((exists $info->{is_nullable}

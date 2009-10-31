@@ -29,4 +29,4 @@ requires:
 resources:
   MailingList: http://groups.google.com/group/catalyst-plugin-autocrud
   license: http://dev.perl.org/licenses/
-version: 0.49
+version: 0.51

@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use MRO::Compat;
 use Devel::InnerPackage qw/list_packages/;
 
-our $VERSION = '0.49';
+our $VERSION = '0.51';
 $VERSION = eval $VERSION; # numify for warning-free dev releases
 our $this_package = __PACKAGE__; # so it can be used in hash keys
 
@@ -130,7 +130,7 @@ Catalyst::Plugin::AutoCRUD - Instant AJAX web front-end for DBIx::Class
 
 =head1 VERSION
 
-This document refers to version 0.49 of Catalyst::Plugin::AutoCRUD
+This document refers to version 0.51 of Catalyst::Plugin::AutoCRUD
 
 =head1 PURPOSE
 
@@ -350,6 +350,15 @@ For those columns where your database uses an auto-incremented value, add the
 C<< is_auto_increment => 1, >> option to the relevant hash in add_columns().
 This will let the plugin know you don't need to supply a value for new or
 updated records. The interface will look much better as a result.
+
+=head2 Textfields and Textareas
+
+When the application creates a web form for adding or editing, it has to
+choose whether to show a Textfield or Textarea for text-type fields. If you
+have set a C<size> option in add_columns() within the Schema, and this is less
+than or equal to 40, a Textfield is used. Otherwise, if the C<size> option is
+larger than 40 or not set, then an auto-expanding, scrollable Textarea is
+used.
 
 =head2 Column names with spaces
 
