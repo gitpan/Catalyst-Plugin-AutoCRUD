@@ -167,22 +167,43 @@ sub _build_table_info {
 
     my @rels = $source->relationships;
     foreach my $r (@rels) {
-        my $type = $source->relationship_info($r)->{attrs}->{accessor};
-        if ($type eq 'multi') {
+        my $rel_info = $source->relationship_info($r);
+
+        if ($rel_info->{attrs}->{accessor} eq 'multi') {
             $mfks{$r} = $source->relationship_info($r);
+            next;
         }
-        # the join_type is a bit heuristic but it's difficult to differentiate
-        # the belongs_to with a custom accessor name, from the has_one/might_have
-        elsif ($type eq 'single'
-                and exists $source->relationship_info($r)->{attrs}->{join_type}) {
-            $sfks{$r} = $source->relationship_info($r);
+
+        # if the self column in the relation condition is a FK, then the
+        # relation type is belongs_to, otherwise it's has_one/might_have
+
+        (my $self_col = (values %{$rel_info->{cond}})[0]) =~ s/^self\.//;
+        my $col_info = $source->column_info($self_col);
+
+        if (exists $col_info->{is_foreign_key} and $col_info->{is_foreign_key} == 1) {
+            # is belongs_to type relation
+            # need to deal with custom accessor name
+            $fks{$r} = $rel_info;
+            @cols = grep {$_ ne $self_col} @cols;
+            $ti->{cols}->{$r}->{masked_col} = $self_col;
+
+            # emit warning about belongs_to relations which are is_nullable
+            # but that do not have a join_type set
+            if (exists $col_info->{is_nullable} and $col_info->{is_nullable} == 1
+                and !exists $rel_info->{attrs}->{join_type}) {
+                $c->log->error( sprintf(
+                    'AutoCRUD CAUTION!: Relation [%s]->[%s] is of type belongs_to '.
+                    'and is_nullable, but has no join_type set. You will not see '.
+                    'all your data!', $source->source_name, $r
+                ));
+            }
         }
-        else { # filter
-            $fks{$r} = $source->relationship_info($r);
-            # if this is a belongs_to with custom accessor, hide the orig col
-            (my $src_col = (values %{$source->relationship_info($r)->{cond}})[0]) =~ s/^self\.//;
-            @cols = grep {$_ !~ m/^$src_col$/} @cols;
-            $ti->{cols}->{$r}->{masked_col} = $src_col;
+        else {
+            # is has_one or might_have type relation
+            # need to grab the FK from the related source
+            $sfks{$r} = $rel_info;
+            (my $foreign_col = (keys %{$rel_info->{cond}})[0]) =~ s/^foreign\.//;
+            $ti->{cols}->{$r}->{foreign_col} = $foreign_col;
         }
     }
 

@@ -27,6 +27,5 @@ requires:
   MRO::Compat: 0
   perl: 5.8.1
 resources:
-  MailingList: http://groups.google.com/group/catalyst-plugin-autocrud
   license: http://dev.perl.org/licenses/
-version: 0.51
+version: 0.53

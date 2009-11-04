@@ -2,6 +2,93 @@
     // dataIndex maps the column to the specific data field in
     // the data store
 
+    // text added to FK combo list to hint for the full-text-search option
+    var fk_combo_comment = ' (all matches)';
+
+    // create reusable renderer
+    Ext.util.Format.comboRenderer = function(combo) {
+        return function(value,metadata,record,rowindex,colindex,store) {
+            // choose what to render from the combobox store's data
+            if (rowindex === 0) {
+                var rec = combo.findRecord(combo.valueField, value);
+                var retval = rec ? rec.get(combo.displayField) : value;
+                return (retval.indexOf(fk_combo_comment) !== -1) ? value : retval;
+            }
+            return value;
+        }
+    };
+
+    // used to hack a extra entry into the store results on filters
+    var sfyRecord = Ext.data.Record.create([
+        { name: 'dbid' }, { name: 'stringified' }
+    ]);
+
+    // create the combo instances
+    [% FOREACH col IN lf.main.col_order %]
+      [% IF lf.main.cols.$col.is_fk OR lf.main.cols.$col.is_rr %]
+        var fk_combo_[% col %] = new Ext.form.ComboBox ({
+            valueField: 'dbid'
+            ,displayField: 'stringified'
+            ,hiddenName: 'combobox.[% col %]'
+            ,hiddenId: 'fk_combo_[% col %]'
+            ,loadingText: 'Searching...'
+            ,forceSelection: true
+            ,selectOnFocus: true
+            ,typeAhead: false
+            ,pageSize: 10
+            ,triggerAction: 'all'
+            ,lazyRender: true
+            ,listClass: 'x-combo-list-small'
+            ,lastQuery: ''
+            ,store: new Ext.data.JsonStore ({
+                url: '[% c.uri_for( c.controller('AutoCRUD::AJAX').action_for('list_stringified'), [site,db,table] ) %]'
+                ,root: 'rows'
+                ,totalProperty: 'total'
+                ,fields: [ 'dbid', 'stringified' ]
+                ,listeners: {
+                    beforeload: function(store, options) {
+                        var start = options.params.start;
+                        var limit = options.params.limit;
+                        options.params.page = Math.floor(start / limit) + 1;
+                        options.params.fkname = '[% col %]';
+                        if (fk_combo_[% col %].getRawValue() && (options.params.page === 1)) {
+                            // so that we can hack in an extra row
+                            options.params.limit = 9;
+                        }
+                        return true;
+                    }
+                    ,load: function(store, records, options) {
+                        var queryText = fk_combo_[% col %].getRawValue();
+                        if (queryText.length && (options.params.page === 1)) {
+                            // be sure not to accidentally add a 2nd copy of fk_combo_comment
+                            if (queryText.indexOf(fk_combo_comment) !== -1) {
+                                queryText = queryText.replace(fk_combo_comment,'');
+                            }
+                            // insert an extra row with full-text-search option
+                            store.insert(0, new sfyRecord({
+                                dbid: queryText
+                                ,stringified: queryText + fk_combo_comment
+                            }));
+                        }
+                    }
+                }
+            })
+            ,listeners: {
+                // delete the previous query in the beforequery event or set
+                // combo.lastQuery = null (this will reload the store the next time it expands)
+                beforequery: function(qe) {
+                    delete qe.combo.lastQuery;
+                }
+                ,blur : function() {
+                    if (this.allowBlank && this.getRawValue() === '') {
+                        this.clearValue();
+                    }
+                }
+            }
+        });
+      [% END %]
+    [% END %]
+
     // we first process the main, ordinary cols (pk and others)
     // the do the one_to_many cols, and then add a column with a delete button
 
@@ -13,11 +100,17 @@
             header:     '[% site_conf.$db.$table.list_returns.$col %]'
           [% ELSIF lf.main.cols.$col.is_fk %]
             header:     '[% lf.main.cols.$col.heading %] (FK)'
+          [% ELSIF lf.main.cols.$col.is_rr %]
+            header:     '[% lf.main.cols.$col.heading %] (REF)'
           [% ELSE %]
             header:     '[% lf.main.cols.$col.heading %]'
           [% END %]
             ,dataIndex: '[% col %]'
-            ,editor:    new Ext.form.TextField({})
+          [% IF lf.main.cols.$col.is_fk OR lf.main.cols.$col.is_rr %]
+            ,editor: fk_combo_[% col %] //reference to combo instance
+            ,renderer: Ext.util.Format.comboRenderer(fk_combo_[% col %]) // pass combo instance to reusable renderer
+          [% ELSE %]
+            ,editor: new Ext.form.TextField({})
             ,renderer: function (value,metadata,record,rowindex,colindex,store) {
               [% IF lf.main.cols.$col.extjs_xtype == 'checkbox' %]
                 if (rowindex === 0) { return '' }
@@ -31,6 +124,7 @@
                 return value;
               [% END %]
             }
+          [% END %]
             [% ',hidden: true' IF site_conf.$db.$table.list_returns AND NOT site_conf.$db.$table.list_returns.$col %]
         }
         [% SET colcount = colcount + 1 %]
