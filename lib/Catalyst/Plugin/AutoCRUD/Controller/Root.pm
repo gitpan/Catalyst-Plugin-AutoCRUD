@@ -22,6 +22,7 @@ sub base : Chained PathPart('autocrud') CaptureArgs(0) {
     $c->stash->{version} = 'CPAC v'
         . $Catalyst::Plugin::AutoCRUD::VERSION;
     $c->stash->{site} = 'default';
+    $c->stash->{template} = 'list.tt';
 }
 
 # =====================================================================
@@ -76,10 +77,13 @@ sub source : Chained('schema') PathPart Args(1) {
     my ($self, $c) = @_;
     $c->forward('do_meta');
     $c->stash->{title} = $c->stash->{lf}->{main}->{title} .' List';
-    $c->stash->{template} = 'list.tt';
+
+    # allow frontend override (default will be full-fat)
+    $c->forward('AutoCRUD::'. ucfirst $c->stash->{site_conf}->{frontend})
+        if $c->controller('AutoCRUD::'. ucfirst $c->stash->{site_conf}->{frontend});
 }
 
-sub ajax : Chained('schema') PathPart('source') CaptureArgs(1) {
+sub call : Chained('schema') PathPart('source') CaptureArgs(1) {
     my ($self, $c) = @_;
     $c->forward('do_meta');
 }
