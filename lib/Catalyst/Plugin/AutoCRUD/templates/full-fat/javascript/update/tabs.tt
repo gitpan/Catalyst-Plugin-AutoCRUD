@@ -35,8 +35,8 @@
                     ,id: '[% info.path %].[% field %]'
                   [% END %]
 
-                  [% IF site_conf.$db.$tbl.list_returns AND site_conf.$db.$tbl.list_returns.$field AND site_conf.$db.$tbl.list_returns.$field != '' %]
-                    ,fieldLabel: '[% site_conf.$db.$tbl.list_returns.$field %]'
+                  [% IF site_conf.$db.$tbl.headings.exists($field) AND site_conf.$db.$tbl.headings.defined($field) %]
+                    ,fieldLabel: '[% site_conf.$db.$tbl.headings.$field %]'
                   [% ELSE %]
                     ,fieldLabel: '[% info.cols.$field.heading %]'
                   [% END %]

@@ -94,10 +94,10 @@
 
     var cm = new Ext.grid.ColumnModel([
       [% SET colcount = 0 %]
-      [% FOREACH col IN lf.main.col_order %]
+      [% FOREACH col IN site_conf.$db.$table.columns.merge(lf.main.col_order).unique %]
         [% ',' IF lf.main.col_order.size > 1 AND colcount != 0 %]{
-          [% IF site_conf.$db.$table.list_returns AND site_conf.$db.$table.list_returns.$col AND site_conf.$db.$table.list_returns.$col != '' %]
-            header:     '[% site_conf.$db.$table.list_returns.$col %]'
+          [% IF site_conf.$db.$table.headings.exists(col) AND site_conf.$db.$table.headings.defined(col) %]
+            header:     '[% site_conf.$db.$table.headings.$col %]'
           [% ELSIF lf.main.cols.$col.is_fk %]
             header:     '[% lf.main.cols.$col.heading %] (FK)'
           [% ELSIF lf.main.cols.$col.is_rr %]
@@ -106,6 +106,7 @@
             header:     '[% lf.main.cols.$col.heading %]'
           [% END %]
             ,dataIndex: '[% col %]'
+            [% ',hidden: true' IF site_conf.$db.$table.columns.size > 0 AND NOT site_conf.$db.$table.col_keys.exists(col) %]
           [% IF lf.main.cols.$col.is_fk OR lf.main.cols.$col.is_rr %]
             ,editor: fk_combo_[% col %] //reference to combo instance
             ,renderer: Ext.util.Format.comboRenderer(fk_combo_[% col %]) // pass combo instance to reusable renderer
@@ -125,7 +126,6 @@
               [% END %]
             }
           [% END %]
-            [% ',hidden: true' IF site_conf.$db.$table.list_returns AND NOT site_conf.$db.$table.list_returns.$col %]
         }
         [% SET colcount = colcount + 1 %]
       [% END %]
@@ -133,6 +133,7 @@
         ,{
             header: '[% lf.main.mfks.item(col) %]'
             ,dataIndex: 'lf-multi-column'
+            [% ',hidden: true' IF site_conf.$db.$table.columns.size > 0 AND NOT site_conf.$db.$table.col_keys.exists(col) %]
             ,align: 'center'
             ,sortable: false
             ,menuDisabled: true

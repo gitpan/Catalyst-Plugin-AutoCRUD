@@ -78,7 +78,7 @@ sub source : Chained('schema') PathPart Args(1) {
     $c->forward('do_meta');
     $c->stash->{title} = $c->stash->{lf}->{main}->{title} .' List';
 
-    # allow frontend override (default will be full-fat)
+    # allow frontend override in non-default site (default will be full-fat)
     $c->stash->{frontend} ||= $c->stash->{site_conf}->{frontend};
     $c->forward('AutoCRUD::'. ucfirst $c->stash->{frontend})
         if $c->controller('AutoCRUD::'. ucfirst $c->stash->{frontend});
@@ -133,6 +133,7 @@ sub err_message : Private {
 
     $c->forward('build_site_config') if !exists $c->stash->{site_conf};
     $c->forward('AutoCRUD::Metadata') if !defined $c->stash->{lf}->{db2path};;
+    $c->stash->{frontend} ||= $c->stash->{site_conf}->{frontend};
     $c->stash->{template} = 'tables.tt';
 }
 
@@ -190,16 +191,39 @@ sub build_site_config : Private {
                     map {($_ => $site->{$sc}->{$_})} keys %defaults
                 }, $site->{$sc}->{$so});
 
-            if (exists $site->{$sc}->{$so}->{list_returns}) {
+            # back-compat work for list_returns
+            if (exists $site->{$sc}->{$so}->{list_returns} and
+                    (!exists $site->{$sc}->{$so}->{headings} and !exists $site->{$sc}->{$so}->{columns})) {
+
+                $c->log->warn("AutoCRUD: 'list_returns' is deprecated for site config. ".
+                    "Please migrate to using 'columns' and 'headings' as shown in the Documentation.");
+
+                $site->{$sc}->{$so}->{headings} = delete $site->{$sc}->{$so}->{list_returns};
+
                 # promote arrayref into hashref
-                if (ref $site->{$sc}->{$so}->{list_returns} eq 'ARRAY') {
-                    $site->{$sc}->{$so}->{list_returns} =  { map {$_ => undef} @{$site->{$sc}->{$so}->{list_returns}} };
+                if (ref $site->{$sc}->{$so}->{headings} eq 'ARRAY') {
+                    $site->{$sc}->{$so}->{headings} =  { map {$_ => undef} @{$site->{$sc}->{$so}->{headings}} };
                 }
 
                 # prettify the column headings 
-                $site->{$sc}->{$so}->{list_returns}->{$_} ||= (join ' ', map ucfirst, split /[\W_]+/, lc $_)
-                    for keys %{ $site->{$sc}->{$so}->{list_returns} };
+                $site->{$sc}->{$so}->{headings}->{$_} ||= (join ' ', map ucfirst, split /[\W_]+/, lc $_)
+                    for keys %{ $site->{$sc}->{$so}->{headings} };
+
+                # columns generated from old list_returns
+                # FIXME ordering!
+                $site->{$sc}->{$so}->{columns} = [ keys %{ $site->{$sc}->{$so}->{headings} } ];
             }
+
+            # copy columns list as hashref for ease of lookups
+            if (exists $site->{$sc}->{$so}->{columns}
+                    and ref $site->{$sc}->{$so}->{columns} eq 'ARRAY') {
+                $site->{$sc}->{$so}->{col_keys} = { map {$_ => 1} @{$site->{$sc}->{$so}->{columns}} };
+            }
+
+            # need stubs for TT
+            $site->{$sc}->{$so}->{columns}  ||= [];
+            $site->{$sc}->{$so}->{col_keys} ||= {};
+            $site->{$sc}->{$so}->{headings} ||= {};
         }
     }
 
