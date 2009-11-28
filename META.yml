@@ -3,12 +3,15 @@ abstract: 'Instant AJAX web front-end for DBIx::Class'
 author:
   - 'Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>'
 build_requires:
+  ExtUtils::MakeMaker: 6.42
   JSON::Any: 0
   Test::More: 0
   Test::WWW::Mechanize: 1.16
   Test::WWW::Mechanize::Catalyst: 0.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.76'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,9 +19,9 @@ meta-spec:
 name: Catalyst-Plugin-AutoCRUD
 no_index:
   directory:
+    - examples
     - inc
     - t
-    - examples
 requires:
   Catalyst::Action::RenderView: 0
   Catalyst::Model::DBIC::Schema: 0
@@ -29,4 +32,4 @@ requires:
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.63
+version: 0.64
