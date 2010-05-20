@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use MRO::Compat;
 use Devel::InnerPackage qw/list_packages/;
 
-our $VERSION = '0.68';
+our $VERSION = '0.71_02';
 $VERSION = eval $VERSION; # numify for warning-free dev releases
 our $this_package = __PACKAGE__; # so it can be used in hash keys
 
@@ -20,7 +20,8 @@ sub setup_components {
         Controller::Static
         Controller::AJAX
         Controller::Skinny
-        Model::Metadata
+        Model::Metadata::DBIC
+        Model::Backend::DBIC
         View::JSON
         View::TT
     );
@@ -94,6 +95,26 @@ sub setup_components {
     }
 
     return 1;
+}
+
+# we subvert the pretty print error screen for dumpmeta
+sub dump_these {
+    my $c = shift;
+    my $params = {
+            map {$_ => $c->stash->{$_}}
+                grep {ref $c->stash->{$_} eq ''}
+                grep {$_ =~ m/^cpac_/}
+                     keys %{$c->stash},
+    };
+    if ($c->stash->{dumpmeta}) {
+        return (
+            [ 'CPAC Parameters' => $params ],
+            [ 'Site Configuration' => $c->stash->{site_conf} ],
+            [ 'Storage Metadata'   => $c->stash->{cpac_meta} ],
+            [ 'Response' => $c->response ], # only to pacify log_request
+        );
+    }
+    else { $c->next::method(@_) }
 }
 
 # monkey patch Catalyst::View::JSON until it is fixed, or users will get scared
@@ -172,7 +193,7 @@ Retrieve, Update, Delete and Search operations.
 
 The interface is not written to static files on your system, and uses AJAX to
 act upon the database without reloading your web page (much like other
-Web 2.0 appliactions, for example Google Mail).
+Web 2.0 applications, for example Google Mail).
 
 Almost all the information required by the plugin is retrieved from the
 L<DBIx::Class> ORM frontend to your database, which it is expected that you
@@ -439,6 +460,15 @@ Use the C<extjs2> option as shown above to specify the URL path to the
 libraries. This will be used in the templates in some way like this:
 
  <script type="text/javascript" src="[% c.config.extjs2 %]/ext-all.js" />
+
+=head2 Changing the HTML Character Set
+
+The default HTML C<charset> used by this module is C<utf-8>. If you wish to override
+this, then set the C<html_charset> parameter, as below:
+
+ <Plugin::AutoCRUD>
+    html_charset  iso-8859-1
+ </Plugin::AutoCRUD>
 
 =head2 Simple read-only non-JavaScript Frontend
 
