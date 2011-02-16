@@ -1,4 +1,7 @@
 package Catalyst::Plugin::AutoCRUD::View::TT;
+BEGIN {
+  $Catalyst::Plugin::AutoCRUD::View::TT::VERSION = '1.110470';
+}
 
 use strict;
 use warnings FATAL => 'all';

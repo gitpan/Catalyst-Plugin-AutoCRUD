@@ -1,32 +1,47 @@
 ---
 abstract: 'Instant AJAX web front-end for DBIx::Class'
 author:
-  - 'Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>'
+  - 'Oliver Gorwits <oliver@cpan.org>'
 build_requires:
-  JSON::Any: 0
+  Catalyst: 0
+  Class::Data::Inheritable: 0
+  DBI: 0
+  DBIx::Class: 0
+  DBIx::Class::Schema: 0
+  Data::Dumper: 0
+  File::Temp: 0
+  Lingua::EN::Inflect::Number: 0
+  Storable: 0
   Test::More: 0
-  Test::WWW::Mechanize: 1.16
-  Test::WWW::Mechanize::Catalyst: 0.42
-distribution_type: module
-generated_by: 'Module::Install version 0.76'
+  Test::WWW::Mechanize::Catalyst: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.31
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.200000, CPAN::Meta::Converter version 2.102400'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Catalyst-Plugin-AutoCRUD
-no_index:
-  directory:
-    - inc
-    - t
-    - examples
 requires:
-  Catalyst::Action::RenderView: 0
+  Carp: 0
+  Catalyst::Controller: 0
+  Catalyst::Model: 0
   Catalyst::Model::DBIC::Schema: 0
-  Catalyst::Runtime: 5.70
+  Catalyst::Utils: 0
   Catalyst::View::JSON: 0
   Catalyst::View::TT: 0
+  DBIx::Class::Schema::Loader: 0
+  Devel::InnerPackage: 0
+  File::Basename: 0
+  File::stat: 0
+  JSON::XS: 0
+  List::Util: 0
   MRO::Compat: 0
-  perl: 5.8.1
+  Scalar::Util: 0
+  overload: 0
 resources:
-  license: http://dev.perl.org/licenses/
-version: 0.71_02
+  bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Catalyst-Plugin-AutoCRUD
+  homepage: https://github.com/ollyg/Catalyst-Plugin-AutoCRUD/wiki
+  repository: git://github.com/ollyg/Catalyst-Plugin-AutoCRUD.git
+version: 1.110470

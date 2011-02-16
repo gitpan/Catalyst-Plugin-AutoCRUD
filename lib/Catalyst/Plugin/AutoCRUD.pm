@@ -1,4 +1,7 @@
 package Catalyst::Plugin::AutoCRUD;
+BEGIN {
+  $Catalyst::Plugin::AutoCRUD::VERSION = '1.110470';
+}
 
 use strict;
 use warnings FATAL => 'all';
@@ -6,8 +9,6 @@ use warnings FATAL => 'all';
 use MRO::Compat;
 use Devel::InnerPackage qw/list_packages/;
 
-our $VERSION = '0.71_02';
-$VERSION = eval $VERSION; # numify for warning-free dev releases
 our $this_package = __PACKAGE__; # so it can be used in hash keys
 
 sub setup_components {
@@ -144,7 +145,11 @@ sub _get_subref {
 
 1;
 
+# ABSTRACT: Instant AJAX web front-end for DBIx::Class
+
+
 __END__
+=pod
 
 =head1 NAME
 
@@ -152,14 +157,7 @@ Catalyst::Plugin::AutoCRUD - Instant AJAX web front-end for DBIx::Class
 
 =head1 VERSION
 
-This document refers to version 0.68 of Catalyst::Plugin::AutoCRUD
-
-=head1 PURPOSE
-
-You have a database, and wish to have a basic web interface supporting Create,
-Retrieve, Update, Delete and Search, with little effort. This module is able
-to create such interfaces on the fly. They are a bit whizzy and all Web
-2.0-ish.
+version 1.110470
 
 =head1 SYNOPSIS
 
@@ -200,6 +198,13 @@ L<DBIx::Class> ORM frontend to your database, which it is expected that you
 have already set up (although see L</USAGE>, below). This means that any
 change in database schema ought to be reflected immediately in the web
 interface after a page refresh.
+
+=head1 PURPOSE
+
+You have a database, and wish to have a basic web interface supporting Create,
+Retrieve, Update, Delete and Search, with little effort. This module is able
+to create such interfaces on the fly. They are a bit whizzy and all Web
+2.0-ish.
 
 =head1 USAGE
 
@@ -959,21 +964,14 @@ out L<CatalystX::ListFramework>.
 
 =head1 AUTHOR
 
-Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>
+Oliver Gorwits <oliver@cpan.org>
 
-=head1 COPYRIGHT & LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Bundled images are Copyright (c) 2006 Mark James, and are from
-L<http://www.famfamfam.com/lab/icons/silk/>.
+This software is copyright (c) 2011 by Oliver Gorwits.
 
-This distribution ships with the Ext.ux.form.DateTime Extension Class for Ext
-2.x Library, Copyright (c) 2008, Ing. Jozef Sakalos, and released under the
-LGPL 3.0 license (library version 289, 2008-06-12 21:08:08).
-
-The rest is Copyright (c) Oliver Gorwits 2009.
-
-This library is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 

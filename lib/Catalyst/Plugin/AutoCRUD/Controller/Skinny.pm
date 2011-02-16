@@ -1,4 +1,7 @@
 package Catalyst::Plugin::AutoCRUD::Controller::Skinny;
+BEGIN {
+  $Catalyst::Plugin::AutoCRUD::Controller::Skinny::VERSION = '1.110470';
+}
 
 use strict;
 use warnings FATAL => 'all';

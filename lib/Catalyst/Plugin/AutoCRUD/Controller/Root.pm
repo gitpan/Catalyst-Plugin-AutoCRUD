@@ -1,4 +1,7 @@
 package Catalyst::Plugin::AutoCRUD::Controller::Root;
+BEGIN {
+  $Catalyst::Plugin::AutoCRUD::Controller::Root::VERSION = '1.110470';
+}
 
 use strict;
 use warnings FATAL => 'all';
