@@ -2,7 +2,7 @@ NAME
     Catalyst::Plugin::AutoCRUD - Instant AJAX web front-end for DBIx::Class
 
 VERSION
-    version 1.112770
+    version 2.112780
 
 SYNOPSIS
     If you already have a Catalyst app with DBIx::Class models configured:
@@ -520,14 +520,6 @@ SITES CONFIGURATION
         title (i.e. what the plugin works out for itself). To hide a column
         from view, use the "columns" option, described above.
 
-    list_returns [ \@columns | { col => title, ... } ]
-        This configuration option is *DEPRECATED*. Please see "columns" to
-        control which columns are displayed to users and, independently,
-        "headings" to alter the titles displayed for any columns. The plugin
-        still respects a "list_returns" configuration setting but will emit
-        a warning to your log that you need to migrate to the new, more
-        flexible, alternatives.
-
     hidden [ yes | no* ]
         If you don't want a schema to be offered to the user, or likewise a
         particular source, then set this option to "yes". By default, all
@@ -714,17 +706,6 @@ INSTANT DEMO APPLICATION
     application you should see your own data source instead.
 
 LIMITATIONS
-    Single column primary key
-        There's no support for multiple column primary keys
-        (composite/compound keys). This has saved a lot of time in
-        development because it greatly simplifies the Catalyst and
-        DBIx::Class code.
-
-    No two columns in a given table may have the same FK constraint
-        If you have two columns which both have foreign key constraints to
-        the same table, it's very likely AutoCRUD will not work. Again this
-        is a simplification which speeded the initial development.
-
     Time Zone settings are lost during SELECT/UPDATE
         Database fields of types such as (PostgreSQL) "timestamp with time
         zone" will be displayed with a date and time picker, but you'll lose
@@ -735,28 +716,11 @@ LIMITATIONS
     implemented soon, please drop me a line at the address below, because
     you might be able to buy some of my time for the development.
 
-REQUIREMENTS
-    *   Catalyst::Runtime >= 5.70
-
-    *   Catalyst::Model::DBIC::Schema
-
-    *   Catalyst::View::JSON
-
-    *   Catalyst::View::TT
-
-    *   Catalyst::Action::RenderView
-
-    *   MRO::Compat
-
 SEE ALSO
     CatalystX::CRUD and CatalystX::CRUD:YUI are two distributions which
     allow you to create something similar but with full customization, and
     the ability to add more features. So, you trade effort for flexibility
     and power.
-
-    CatalystX::ListFramework is similar but has no dependency on Javascript
-    (though it can use it for fancy auto-complete searches), and it also
-    allows you to control which columns are rendered in the display.
 
 ACKNOWLEDGEMENTS
     Without the initial work on "CatalystX::ListFramework" by Andrew Payne

@@ -1,6 +1,6 @@
 package Catalyst::Plugin::AutoCRUD;
-BEGIN {
-  $Catalyst::Plugin::AutoCRUD::VERSION = '1.112770';
+{
+  $Catalyst::Plugin::AutoCRUD::VERSION = '2.112780'; # TRIAL
 }
 
 use strict;
@@ -10,6 +10,7 @@ use MRO::Compat;
 use Devel::InnerPackage qw/list_packages/;
 
 our $this_package = __PACKAGE__; # so it can be used in hash keys
+our $VERSION ||= '0.00031412';
 
 sub setup_components {
     my $class = shift;
@@ -21,7 +22,6 @@ sub setup_components {
         Controller::Static
         Controller::AJAX
         Controller::Skinny
-        Model::Metadata::DBIC
         Model::Backend::DBIC
         View::JSON
         View::TT
@@ -65,6 +65,25 @@ sub setup_components {
             = $class->config->{$config_key}->{basepath};
     }
 
+    # any additional backends requested
+    if (exists $class->config->{$config_key}->{backends}) {
+        my @backends = ref $class->config->{$config_key}->{backends} eq ref ''
+            ? $class->config->{$config_key}->{backends}
+            : @{ $class->config->{$config_key}->{backends} };
+
+        # they will be componentized below
+        push @packages, map {'Model::Backend::' . $_} @backends;
+
+        # this so that they can be forwarded to in the controller
+        my %m = map {('Model::AutoCRUD::Backend::' . $_) => 1} @backends;
+        ++$m{'Model::AutoCRUD::Backend::DBIC'};
+        $class->config->{$config_key}->{backends} = [ keys %m ];
+    }
+    else {
+        $class->config->{$config_key}->{backends} =
+            [ 'Model::AutoCRUD::Backend::DBIC' ];
+    }
+
     foreach my $orig (@packages) {
         (my $p = $orig) =~ s/::/::AutoCRUD::/;
         my $comp = "${class}::${p}";
@@ -101,17 +120,32 @@ sub setup_components {
 # we subvert the pretty print error screen for dumpmeta
 sub dump_these {
     my $c = shift;
+
     my $params = {
             map {$_ => $c->stash->{$_}}
                 grep {ref $c->stash->{$_} eq ''}
                 grep {$_ =~ m/^cpac_/}
                      keys %{$c->stash},
     };
+
+    # strip the SQLT objects
+    my $meta = undef;
+    if (exists $c->stash->{cpac}->{m}) {
+        $meta = scalar $c->stash->{cpac}->{m}->extra;
+        foreach my $t (values %{$c->stash->{cpac}->{m}->t}) {
+            $meta->{t}->{$t->name} = scalar $t->extra;
+            foreach my $f (values %{$t->f}) {
+                $meta->{t}->{$t->name}->{f}->{$f->name} = scalar $f->extra;
+            }
+        }
+    }
+
     if ($c->stash->{dumpmeta}) {
         return (
-            [ 'CPAC Parameters' => $params ],
-            [ 'Site Configuration' => $c->stash->{site_conf} ],
-            [ 'Storage Metadata'   => $c->stash->{cpac_meta} ],
+            [ 'CPAC Parameters (cpac_*)' => $params ],
+            [ 'Global Configuration (g)' => $c->stash->{cpac}->{g} ],
+            [ 'Site Configuration (c)' => $c->stash->{cpac}->{c} ],
+            [ 'Storage Metadata (m)' => $meta ],
             [ 'Response' => $c->response ], # only to pacify log_request
         );
     }
@@ -157,7 +191,7 @@ Catalyst::Plugin::AutoCRUD - Instant AJAX web front-end for DBIx::Class
 
 =head1 VERSION
 
-version 1.112770
+version 2.112780
 
 =head1 SYNOPSIS
 
@@ -680,14 +714,6 @@ Any columns not included in the hash mapping will use the default title (i.e.
 what the plugin works out for itself). To hide a column from view, use the
 C<columns> option, described above.
 
-=item list_returns [ \@columns | { col => title, ... } ]
-
-This configuration option is I<DEPRECATED>. Please see C<columns> to control
-which columns are displayed to users and, independently, C<headings> to alter
-the titles displayed for any columns. The plugin still respects a
-C<list_returns> configuration setting but will emit a warning to your log that
-you need to migrate to the new, more flexible, alternatives.
-
 =item hidden [ yes | no* ]
 
 If you don't want a schema to be offered to the user, or likewise a particular
@@ -890,18 +916,6 @@ your own data source instead.
 
 =over 4
 
-=item Single column primary key
-
-There's no support for multiple column primary keys (composite/compound
-keys). This has saved a lot of time in development because it greatly
-simplifies the L<Catalyst> and L<DBIx::Class> code.
-
-=item No two columns in a given table may have the same FK constraint
-
-If you have two columns which both have foreign key constraints to the same
-table, it's very likely AutoCRUD will not work. Again this is a simplification
-which speeded the initial development.
-
 =item Time Zone settings are lost during SELECT/UPDATE
 
 Database fields of types such as (PostgreSQL) C<timestamp with time zone> will
@@ -915,45 +929,11 @@ For the issues above, if you're desperate that the feature be implemented
 soon, please drop me a line at the address below, because you might be able to
 buy some of my time for the development.
 
-=head1 REQUIREMENTS
-
-=over 4
-
-=item *
-
-Catalyst::Runtime >= 5.70
-
-=item *
-
-Catalyst::Model::DBIC::Schema
-
-=item *
-
-Catalyst::View::JSON
-
-=item *
-
-Catalyst::View::TT
-
-=item *
-
-Catalyst::Action::RenderView
-
-=item *
-
-MRO::Compat
-
-=back
-
 =head1 SEE ALSO
 
 L<CatalystX::CRUD> and L<CatalystX::CRUD:YUI> are two distributions which
 allow you to create something similar but with full customization, and the
 ability to add more features. So, you trade effort for flexibility and power.
-
-L<CatalystX::ListFramework> is similar but has no dependency on Javascript
-(though it can use it for fancy auto-complete searches), and it also allows
-you to control which columns are rendered in the display.
 
 =head1 ACKNOWLEDGEMENTS
 
