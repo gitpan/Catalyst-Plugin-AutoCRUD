@@ -36,6 +36,8 @@ my %WriteMakefileArgs = (
     "Catalyst::Controller" => 0,
     "Catalyst::Model" => 0,
     "Catalyst::Model::DBIC::Schema" => 0,
+    "Catalyst::Plugin::ConfigLoader" => 0,
+    "Catalyst::Plugin::Unicode::Encoding" => 0,
     "Catalyst::Runtime" => "5.70",
     "Catalyst::Utils" => 0,
     "Catalyst::View::JSON" => 0,
@@ -61,7 +63,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "2.112780",
+  "VERSION" => "2.112830_001",
   "test" => {
     "TESTS" => "t/*.t"
   }

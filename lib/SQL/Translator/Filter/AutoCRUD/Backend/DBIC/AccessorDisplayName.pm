@@ -1,6 +1,6 @@
 package SQL::Translator::Filter::AutoCRUD::Backend::DBIC::AccessorDisplayName;
 {
-  $SQL::Translator::Filter::AutoCRUD::Backend::DBIC::AccessorDisplayName::VERSION = '2.112780'; # TRIAL
+  $SQL::Translator::Filter::AutoCRUD::Backend::DBIC::AccessorDisplayName::VERSION = '2.112830_001';
 }
 
 # Although AutoCRUD is "safe" for columns of any weird name you like,
@@ -20,7 +20,7 @@ sub filter {
         my $source = $schema->source($tbl_name);
         my $from = make_path($source);
         my $sqlt_tbl = $sqlt->get_table($from)
-            or die "mismatched table name between SQLT and DBIC: [$tbl_name]\n";
+            or die "mismatched (accessor) table name between SQLT and DBIC: [$tbl_name]\n";
 
         my $columns_info = $source->columns_info;
 

@@ -1,6 +1,6 @@
 package SQL::Translator::Filter::AutoCRUD::CatalystModel;
 {
-  $SQL::Translator::Filter::AutoCRUD::CatalystModel::VERSION = '2.112780'; # TRIAL
+  $SQL::Translator::Filter::AutoCRUD::CatalystModel::VERSION = '2.112830_001';
 }
 
 use strict;

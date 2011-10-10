@@ -1,6 +1,6 @@
 package SQL::Translator::Filter::AutoCRUD::Backend::DBIC::ProxyColumns;
 {
-  $SQL::Translator::Filter::AutoCRUD::Backend::DBIC::ProxyColumns::VERSION = '2.112780'; # TRIAL
+  $SQL::Translator::Filter::AutoCRUD::Backend::DBIC::ProxyColumns::VERSION = '2.112830_001';
 }
 
 # The DBIC Relation proxy atribute can be used to import accessors from
@@ -20,7 +20,7 @@ sub filter {
         my $source = $schema->source($tbl_name);
         my $from = make_path($source);
         my $sqlt_tbl = $sqlt->get_table($from)
-            or die "mismatched table name between SQLT and DBIC: [$tbl_name]\n";
+            or die "mismatched (proxy) table name between SQLT and DBIC: [$tbl_name]\n";
 
         foreach my $r ($source->relationships) {
             my $rel_info = $source->relationship_info($r);

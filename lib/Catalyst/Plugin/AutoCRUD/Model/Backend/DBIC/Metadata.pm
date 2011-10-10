@@ -1,6 +1,6 @@
 package Catalyst::Plugin::AutoCRUD::Model::Backend::DBIC::Metadata;
 {
-  $Catalyst::Plugin::AutoCRUD::Model::Backend::DBIC::Metadata::VERSION = '2.112780'; # TRIAL
+  $Catalyst::Plugin::AutoCRUD::Model::Backend::DBIC::Metadata::VERSION = '2.112830_001';
 }
 
 use strict;
@@ -32,7 +32,6 @@ sub source_dispatch_table {
         my $sources = $cache->{sources};
         return { map {($_ => {
                 display_name => $sources->{$_}->{display_name},
-                editable => $sources->{$_}->{editable},
             })} keys %$sources };
     }
 
@@ -46,14 +45,11 @@ sub source_dispatch_table {
 
         $display->{$path} = {
             display_name => make_label($path),
-            editable =>
-                (eval {$result_source->isa('DBIx::Class::ResultSource::View')} ? 0 : 1),
         };
 
         $cache->{sources}->{$path} = {
             model => $source_model,
             display_name => $display->{$path}->{display_name},
-            editable => $display->{$path}->{editable},
         };
     }
 
