@@ -16,13 +16,17 @@ build_requires:
   Test::WWW::Mechanize::Catalyst: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
-dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300002, CPAN::Meta::Converter version 2.131560'
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.131560'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Catalyst-Plugin-AutoCRUD
+no_index:
+  directory:
+    - t
+    - inc
 requires:
   Catalyst::Action::RenderView: 0
   Catalyst::Controller: 0
@@ -57,8 +61,4 @@ requires:
   overload: 0
   strict: 0
   warnings: 0
-resources:
-  bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Catalyst-Plugin-AutoCRUD
-  homepage: https://github.com/ollyg/Catalyst-Plugin-AutoCRUD/wiki
-  repository: git://github.com/ollyg/Catalyst-Plugin-AutoCRUD.git
-version: 2.143070
+version: 2.200000

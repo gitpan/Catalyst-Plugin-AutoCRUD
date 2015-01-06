@@ -1,12 +1,7 @@
-
 use strict;
 use warnings;
 
-
-
 use ExtUtils::MakeMaker 6.30;
-
-
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Instant AJAX web front-end for DBIx::Class",
@@ -66,7 +61,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "2.143070",
+  "VERSION" => "2.200000",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -90,6 +85,4 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
 WriteMakefile(%WriteMakefileArgs);
-
-
 
