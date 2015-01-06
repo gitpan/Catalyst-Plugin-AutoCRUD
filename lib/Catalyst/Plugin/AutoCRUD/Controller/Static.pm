@@ -1,6 +1,7 @@
 package Catalyst::Plugin::AutoCRUD::Controller::Static;
-
-
+{
+  $Catalyst::Plugin::AutoCRUD::Controller::Static::VERSION = '2.143070';
+}
 
 use strict;
 use warnings;

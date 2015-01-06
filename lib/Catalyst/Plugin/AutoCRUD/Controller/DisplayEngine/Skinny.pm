@@ -1,6 +1,7 @@
 package Catalyst::Plugin::AutoCRUD::Controller::DisplayEngine::Skinny;
-
-
+{
+  $Catalyst::Plugin::AutoCRUD::Controller::DisplayEngine::Skinny::VERSION = '2.143070';
+}
 
 use strict;
 use warnings;
